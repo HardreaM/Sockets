@@ -11,8 +11,8 @@ def get(sock, x):
     global top, textfield
     while True:
         data = sock.recv(400)
-        
-        set_widgets(top, data.decode("utf-8")+"\n", textfield)
+        textfield.insert(END, data.decode("utf-8")+"\n")
+        #set_widgets(top, data.decode("utf-8")+"\n", textfield)
 
         print(data.decode("utf-8"))
 
@@ -54,7 +54,8 @@ if __name__ == '__main__':
     data_button = tk.Button(text="Send", command=send)
     data_button.place(relx=.5, rely=.5, anchor="c")
 
-    set_widgets(top, "Best python chat\n", textfield)
+    textfield.insert(END, "Best python chat\n")
+    #set_widgets(top, "Best python chat\n", textfield)
 
     root.mainloop()
 
