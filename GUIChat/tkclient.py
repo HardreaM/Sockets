@@ -1,41 +1,52 @@
 import socket
 import threading
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import *
 
 sock = socket.socket()
 
 sock.connect(('127.0.0.1', 9090))
 
 def get(sock, x):
-    global main, top, root
+    global top, textfield
     while True:
-        print(True)
         data = sock.recv(400)
+        
+        set_widgets(top, data.decode("utf-8")+"\n", textfield)
+
         print(data.decode("utf-8"))
 
 def send():
     global sock
     data1 = data.get()
-    sock.send(bytes(data1, encoding="utf-8"))
+    intro = str(sock.getsockname()[0]) + ":" + str(sock.getsockname()[1]) + " says: "
+    sock.send(bytes(intro+data1, encoding="utf-8"))
+
+def set_widgets(root_window, text, textfield):
+        
+    textfield.insert(END, text)
 
 x = 0
 
-class Application:
-    @staticmethod
-    def set_widgets(root_window, text):
-        tk.Label(root_window).pack()
-        tk.Label(root_window, text=text).pack()
+t1 = threading.Thread(target=get, args=(sock, x), daemon=True)
 
+t1.start()
 
 if __name__ == '__main__':
     root = tk.Tk()
-    root.title("Левый")
-    root.geometry("600x650")
+    root.title("Send message")
+    root.geometry("300x350")
 
     top = tk.Toplevel()
-    top.title("Правый")
+    top.title("Chat")
     top.geometry("600x650")
+
+    scroll = tk.Scrollbar(top)
+    scroll.pack(side=RIGHT, fill=Y)
+    
+    textfield = tk.Text(top, height=600, width=650, yscrollcommand=scroll.set)
+    textfield.pack()
+    textfield.insert(END, "Waiting...\n")
 
     data = tk.StringVar()
     data_entry = tk.Entry(textvariable=data)
@@ -43,17 +54,7 @@ if __name__ == '__main__':
     data_button = tk.Button(text="Send", command=send)
     data_button.place(relx=.5, rely=.5, anchor="c")
 
-    main = Application()
-    main.set_widgets(root, "Send")
-    main.set_widgets(top, "Get")
+    set_widgets(top, "Best python chat\n", textfield)
 
     root.mainloop()
 
-    t1 = threading.Thread(target=get, args=(sock, x), daemon=True)
-    #t2 = threading.Thread(target=send, args=(sock, x), daemon=True)
-
-    t1.start()
-    #t2.start()
-
-    t1.join()
-    #t2.join()
